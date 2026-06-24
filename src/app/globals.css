@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+:root {
+  /* ベージュ背景 + くすんだ青(ダスティブルー)のテーマ */
+  --bg: #f3ede2;
+  --fg: #33312c;
+
+  --card: #fffdf9;
+  --card-soft: #ece4d4;
+
+  --accent: #5c7a92;
+  --accent-dark: #3f5667;
+  --accent-soft: #e1e9ec;
+
+  --muted: #8a8275;
+  --border: #e5dcca;
+
+  --danger: #b9594f;
+  --danger-soft: #f3e2de;
+
+  --shadow-card: 0 1px 2px rgba(51, 49, 44, 0.04), 0 4px 16px rgba(51, 49, 44, 0.05);
+}
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+  --color-card: var(--card);
+  --color-card-soft: var(--card-soft);
+  --color-accent: var(--accent);
+  --color-accent-dark: var(--accent-dark);
+  --color-accent-soft: var(--accent-soft);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html {
+  background: var(--bg);
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-geist-sans), "Hiragino Sans", "Hiragino Kaku Gothic ProN",
+    "Noto Sans JP", Meiryo, sans-serif;
+  letter-spacing: 0.01em;
+}
+
+* {
+  border-color: var(--border);
+}
+
+input,
+textarea,
+select {
+  color: var(--fg);
+  font-family: inherit;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #b3a994;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+::selection {
+  background: var(--accent-soft);
+}
+
+/* スクロールバーを少し馴染ませる */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--card-soft);
+  border-radius: 8px;
+}
+
+/* アンカーリンクでフォームに飛んできた時、一瞬だけ枠を光らせて気づきやすくする */
+@keyframes target-pulse {
+  0% {
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+:target {
+  animation: target-pulse 1.6s ease-out;
+}
