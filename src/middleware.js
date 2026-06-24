@@ -29,7 +29,11 @@ export async function middleware(request) {
   const { data: { user } } = await supabase.auth.getUser();
 
   // 未ログインで保護ページにアクセスしたらログインページへ
-  const isAuthPage = request.nextUrl.pathname.startsWith("/login");
+  // (パスワード再設定の途中(/auth/callback → /reset-password)はログイン前でも通す)
+  const isAuthPage =
+    request.nextUrl.pathname.startsWith("/login") ||
+    request.nextUrl.pathname.startsWith("/auth/callback") ||
+    request.nextUrl.pathname.startsWith("/reset-password");
   if (!user && !isAuthPage) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";

@@ -8,7 +8,7 @@ export default function LoginPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  const [mode, setMode] = useState("signin"); // 'signin' | 'signup'
+  const [mode, setMode] = useState("signin"); // 'signin' | 'signup' | 'forgot'
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -21,6 +21,19 @@ export default function LoginPage() {
     setError(null);
     setInfoMsg(null);
     setLoading(true);
+
+    if (mode === "forgot") {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      });
+      if (error) {
+        setError(error.message);
+      } else {
+        setInfoMsg("再設定用のメールを送信しました。メール内のリンクから新しいパスワードを設定してください。");
+      }
+      setLoading(false);
+      return;
+    }
 
     if (mode === "signin") {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -51,7 +64,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm bg-card rounded-2xl shadow-sm border border-border p-6">
         <h1 className="text-xl font-bold text-accent-dark mb-1">予算管理アプリ</h1>
         <p className="text-sm text-muted mb-6">
-          {mode === "signin" ? "ログイン" : "新規登録"}
+          {mode === "signin" ? "ログイン" : mode === "signup" ? "新規登録" : "パスワードの再設定"}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-3">
@@ -77,17 +90,19 @@ export default function LoginPage() {
               className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-card"
             />
           </div>
-          <div>
-            <label className="block text-sm text-muted mb-1">パスワード</label>
-            <input
-              type="password"
-              required
-              minLength={6}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-card"
-            />
-          </div>
+          {mode !== "forgot" && (
+            <div>
+              <label className="block text-sm text-muted mb-1">パスワード</label>
+              <input
+                type="password"
+                required
+                minLength={6}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-card"
+              />
+            </div>
+          )}
 
           {error && <p className="text-sm text-danger">{error}</p>}
           {infoMsg && <p className="text-sm text-accent-dark">{infoMsg}</p>}
@@ -97,16 +112,44 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full bg-accent hover:bg-accent-dark text-white rounded-xl py-2 text-sm font-medium disabled:opacity-50 transition"
           >
-            {loading ? "処理中..." : mode === "signin" ? "ログイン" : "登録する"}
+            {loading
+              ? "処理中..."
+              : mode === "signin"
+              ? "ログイン"
+              : mode === "signup"
+              ? "登録する"
+              : "再設定メールを送る"}
           </button>
         </form>
 
-        <button
-          onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-          className="w-full text-center text-sm text-muted mt-4 underline hover:text-accent-dark"
-        >
-          {mode === "signin" ? "新規登録はこちら" : "ログインはこちら"}
-        </button>
+        {mode === "signin" && (
+          <button
+            onClick={() => { setMode("forgot"); setError(null); setInfoMsg(null); }}
+            className="w-full text-center text-xs text-muted mt-3 underline hover:text-accent-dark"
+          >
+            パスワードをお忘れですか?
+          </button>
+        )}
+
+        {mode !== "forgot" ? (
+          <button
+            onClick={() => {
+              setMode(mode === "signin" ? "signup" : "signin");
+              setError(null);
+              setInfoMsg(null);
+            }}
+            className="w-full text-center text-sm text-muted mt-4 underline hover:text-accent-dark"
+          >
+            {mode === "signin" ? "新規登録はこちら" : "ログインはこちら"}
+          </button>
+        ) : (
+          <button
+            onClick={() => { setMode("signin"); setError(null); setInfoMsg(null); }}
+            className="w-full text-center text-sm text-muted mt-4 underline hover:text-accent-dark"
+          >
+            ログインに戻る
+          </button>
+        )}
       </div>
     </div>
   );
